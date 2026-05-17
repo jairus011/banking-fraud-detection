@@ -35,6 +35,10 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+data/
+*.npy
+.ipynb_checkpoints/
+
 
 # Unit test / coverage reports
 htmlcov/
