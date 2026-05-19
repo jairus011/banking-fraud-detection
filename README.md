@@ -127,3 +127,21 @@ banking-fraud-detection/
 ├── reports/
 ├── src/
 └── README.md
+
+# Future Improvements
+
+Possible future improvements include:
+- XGBoost implementation
+- LightGBM implementation
+- Real-time fraud detection
+- Model deployment using Streamlit
+- Fraud monitoring dashboard
+- API integration
+
+---
+
+# Author
+
+Jairus Omondi
+
+Aspiring Data Scientist focused on banking analytics, fraud detection, and machine learning applications in finance.
