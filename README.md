@@ -1,147 +1,125 @@
-# Banking Fraud Detection System
+# Banking Fraud Detection — Streamlit Batch Scoring App
 
-## Project Overview
+A portfolio project for **credit-card fraud screening** using a saved Random Forest model and a Streamlit batch-scoring interface.
 
-This project develops a machine learning-based fraud detection system for banking transactions using the Credit Card Fraud Detection dataset.
+The app accepts transaction CSV files in the classic Credit Card Fraud Detection feature format (**Time, V1–V28, Amount**), validates the schema, applies the saved scaler/model, and returns transactions flagged for review.
 
-The goal of the project is to identify fraudulent transactions while minimizing false positives and improving financial security.
+> **Important:** this is an educational ML prototype. A prediction is a screening signal, not proof of fraud and not a production payment-blocking system.
 
-Fraud detection is a critical problem in the banking and financial sector because fraudulent activities can result in major financial losses and reduced customer trust.
+## Why this project exists
 
----
+Fraud detection is a highly imbalanced classification problem. A useful system must consider more than accuracy: recall matters for catching fraud, while precision matters because excessive false positives create unnecessary investigations and customer friction.
 
-# Business Problem
+This repository demonstrates:
 
-Banks process millions of transactions daily. Detecting fraudulent transactions manually is inefficient and costly.
+- imbalanced fraud modelling
+- feature scaling
+- SMOTE-based training workflow in the original modelling work
+- Logistic Regression vs Random Forest comparison
+- saved model artifacts
+- batch inference from CSV
+- input validation and downloadable scored results
+- a deployable Streamlit interface
 
-This project applies machine learning techniques to:
-- automatically identify suspicious transactions,
-- reduce financial losses,
-- improve fraud investigation efficiency,
-- support intelligent banking security systems.
+## Dataset
 
----
+The modelling work uses the Credit Card Fraud Detection dataset:
 
-# Dataset Information
-
-Dataset used:
-- Credit Card Fraud Detection Dataset
-
-Dataset characteristics:
 - 284,807 transactions
-- Highly imbalanced dataset
-- Fraudulent transactions represent approximately 0.17% of all transactions
+- 492 fraud cases in the original dataset
+- fraud rate of roughly 0.17%
+- anonymized PCA features V1–V28 plus Time and Amount
 
-Features:
-- Numerical transaction features (V1–V28)
-- Transaction Amount
-- Transaction Time
-- Target variable:
-  - 0 = Normal transaction
-  - 1 = Fraudulent transaction
+The raw source dataset is not committed to this repository.
 
----
+## Recorded model results
 
-# Project Workflow
-
-## 1. Exploratory Data Analysis (EDA)
-- Fraud distribution analysis
-- Transaction amount analysis
-- Class imbalance visualization
-- Missing value checks
-
-## 2. Data Preprocessing
-- Train-test split
-- Feature scaling using StandardScaler
-- Class balancing using SMOTE
-
-## 3. Machine Learning Modeling
-Two supervised learning models were trained:
-
-### Logistic Regression
-### Random Forest Classifier
-
----
-
-# Model Evaluation Metrics
-
-The models were evaluated using:
-- Precision
-- Recall
-- F1-score
-- ROC-AUC
-
----
-
-# Final Results
-
-| Model | Precision | Recall | F1 Score | ROC-AUC |
-|---|---|---|---|---|
+| Model | Precision | Recall | F1 | ROC-AUC |
+|---|---:|---:|---:|---:|
 | Logistic Regression | 0.058 | 0.918 | 0.109 | 0.946 |
 | Random Forest | 0.406 | 0.837 | 0.547 | 0.917 |
 
----
+The saved Streamlit application uses the **Random Forest** artifact because it provided a substantially better precision/recall balance in the original experiment.
 
-# Best Performing Model
+These results are experiment-specific and do not establish production performance.
 
-## Random Forest Classifier
+## Run locally
 
-Random Forest achieved the best overall balance between:
-- fraud detection capability,
-- false positive reduction,
-- practical usability in banking environments.
+Use a clean environment rather than the original machine-wide Anaconda export.
 
-Although Logistic Regression achieved higher recall, it produced excessive false positives.
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
 
----
+Then upload a CSV with these columns:
 
-# Technologies Used
+```text
+Time, V1, V2, ... V28, Amount
+```
 
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- Scikit-learn
-- Imbalanced-learn (SMOTE)
-- Jupyter Notebook
-- Git & GitHub
+A `Class` column may be present; it is ignored during inference.
 
----
+## What the app does
 
-# Project Structure
+1. validates required columns
+2. rejects missing/non-numeric model inputs
+3. reorders inputs to the training schema
+4. applies the saved scaler
+5. scores rows with the saved Random Forest
+6. summarizes flagged transactions
+7. lets the user download the scored CSV
+
+## Deployment
+
+This repository is configured for a Render web service.
+
+**Build**
+
+```bash
+pip install -r requirements.txt
+```
+
+**Start**
+
+```bash
+streamlit run app.py --server.address 0.0.0.0 --server.port $PORT
+```
+
+A live URL should be added only after the hosted service has been verified.
+
+## API integration
+
+**No external API is integrated.**
+
+The app performs local inference using model files in `models/`. It does not connect to a bank core system, card network, payment gateway, or transaction API.
+
+If this were extended into a service consumed by other applications, the appropriate next step would be a small **FastAPI inference service** with a documented request/response schema—not adding an API simply for appearance.
+
+## Repository structure
 
 ```text
 banking-fraud-detection/
-│
-├── data/
+├── app.py
 ├── models/
 │   ├── random_forest_model.pkl
 │   └── scaler.pkl
-│
 ├── notebooks/
-│   ├── fraud_detection_eda.ipynb
-│   ├── fraud_detection_preprocessing.ipynb
-│   └── fraud_detection_modeling.ipynb
-│
-├── reports/
-├── src/
+├── PROJECT_STATUS.md
+├── render.yaml
+├── requirements.txt
 └── README.md
+```
 
-# Future Improvements
+## Limitations
 
-Possible future improvements include:
-- XGBoost implementation
-- LightGBM implementation
-- Real-time fraud detection
-- Model deployment using Streamlit
-- Fraud monitoring dashboard
-- API integration
+- public benchmark data, not live institutional transaction data
+- model artifacts depend on the preprocessing/training environment
+- no probability calibration or institution-specific review threshold
+- no drift monitoring, explainability workflow, authentication, or audit database
+- no real-time transaction integration
 
----
+## Portfolio role
 
-# Author
-
-Jairus Omondi
-
-Aspiring Data Scientist focused on banking analytics, fraud detection, and machine learning applications in finance.
+This is an **older fraud project upgraded into an interactive batch-scoring demo**. The newer `financial-fraud-detection-dashboard` repository is the stronger end-to-end fraud engineering project and should remain the primary flagship.
